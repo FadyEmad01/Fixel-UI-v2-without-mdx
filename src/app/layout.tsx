@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import Navbar from "@/components/site/layout/Navbar";
 
-const archivoHeading = Archivo({ subsets: ['latin'], variable: '--font-heading' });
+const archivoHeading = Archivo({ subsets: ['latin'], variable: '--font-archivo' });
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
