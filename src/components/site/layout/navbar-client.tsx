@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { MenuIconSmall } from "@/components/icons/menuSmall";
 import { MenuIconHandle } from "@/components/icons/menu";
 import { Search, SearchX } from "lucide-react";
+import { ThemeSwitcher } from "@/components/theme/theme-toggle";
 
 /* ==========================================================================
    Contents
@@ -284,19 +285,10 @@ function SearchToggleButton({ isSearchOpen, disabled, onClick }: SearchToggleBut
 }
 
 /** Theme switch mockup (visual only — wire up a real toggle later). */
-function ThemeToggle() {
+function ThemeToggleFooter() {
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-xs font-medium uppercase tracking-widest text-black/50 dark:text-white/50">
-        Theme
-      </span>
-      <button
-        type="button"
-        role="switch"
-        className="peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 bg-black/20 dark:bg-white/20"
-      >
-        <span className="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform translate-x-0 dark:translate-x-5" />
-      </button>
+    <div className="flex items-center ">
+      <ThemeSwitcher />
     </div>
   );
 }
@@ -403,7 +395,7 @@ function PanelFooter() {
           </div>
         </div>
 
-        <ThemeToggle />
+        <ThemeToggleFooter />
       </div>
     </div>
   );
