@@ -3,7 +3,7 @@
   "name": "fixel-ui",
   "homepage": "https://fixel-ui.com",
   "include": [
-    "registry/ui/registry.json",
-    "registry/blocks/registry.json"
+    "src/registry/ui/registry.json",
+    "src/registry/blocks/registry.json"
   ]
 }

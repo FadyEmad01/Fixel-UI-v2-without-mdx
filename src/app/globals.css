@@ -229,3 +229,76 @@
     }
   }
 }
+
+/* Shiki dual-theme colors.
+   Keep this in global CSS, not a CSS module. */
+.shiki {
+  /* Let the surrounding code-block panel provide the background. */
+  --shiki-light-bg: transparent;
+  --shiki-dark-bg: transparent;
+  background-color: transparent !important;
+}
+
+/* Light theme */
+.shiki,
+.shiki span:not(.line-number) {
+  color: var(--shiki-light, inherit) !important;
+  font-style: var(--shiki-light-font-style, inherit) !important;
+  font-weight: var(--shiki-light-font-weight, inherit) !important;
+  text-decoration: var(--shiki-light-text-decoration, inherit) !important;
+}
+
+/* Dark theme: requires a .dark ancestor */
+.dark .shiki,
+.dark .shiki span:not(.line-number) {
+  color: var(--shiki-dark, inherit) !important;
+  font-style: var(--shiki-dark-font-style, inherit) !important;
+  font-weight: var(--shiki-dark-font-weight, inherit) !important;
+  text-decoration: var(--shiki-dark-text-decoration, inherit) !important;
+}
+
+.shiki-styles .line-number {
+  @apply mr-6 ms-0.5 inline-block min-w-6 select-none text-left text-muted-foreground/50;
+}
+
+.shiki-styles .line.highlighted {
+  @apply border-l-2 border-blue-500 bg-blue-500/10 pl-[calc(1.25rem-2px)];
+}
+
+.shiki-styles .has-focused .line:not(.focused) {
+  @apply opacity-40 blur-[1.5px] transition-all duration-300;
+}
+
+.shiki-styles .has-focused:hover .line:not(.focused) {
+  @apply opacity-100 blur-none;
+}
+
+.shiki-styles .line.diff.add {
+  @apply border-l-2 border-green-500 bg-green-500/10 pl-[calc(1.25rem-2px)];
+}
+
+.shiki-styles .line.diff.add::before {
+  content: "+";
+  @apply mr-2 ml-1 text-green-500;
+}
+
+.shiki-styles .line.diff.remove {
+  @apply border-l-2 border-red-500 bg-red-500/10 pl-[calc(1.25rem-2px)];
+}
+
+.shiki-styles .line.diff.remove::before {
+  content: "-";
+  @apply mr-2 ml-1 text-red-500;
+}
+
+.shiki-styles .line.highlighted.error {
+  @apply border-l-2 border-red-500 bg-red-500/10;
+}
+
+.shiki-styles .line.highlighted.warning {
+  @apply border-l-2 border-yellow-500 bg-yellow-500/10;
+}
+
+.shiki-styles .highlighted-word {
+  @apply rounded-md border border-muted-foreground/20 bg-muted-foreground/5 px-1 py-0.5;
+}

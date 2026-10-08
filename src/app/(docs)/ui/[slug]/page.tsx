@@ -1,4 +1,7 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+
+import { RegistryItemPage } from "@/feature/docs/registry/registry-item-page";
+import { getRegistryItem, getRegistryStaticParams } from "@/lib/registry/items";
 
 interface UIDetailPageProps {
   params: Promise<{
@@ -6,15 +9,27 @@ interface UIDetailPageProps {
   }>;
 }
 
-export default async function UIDetailRoute({
+export async function generateStaticParams() {
+  return getRegistryStaticParams("ui");
+}
+
+export async function generateMetadata({
   params,
-}: UIDetailPageProps) {
+}: UIDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = null; // Replace with actual item retrieval logic
+  const item = await getRegistryItem("ui", slug);
 
   if (!item) {
-    notFound();
+    return { title: "Not found" };
   }
 
-  return null; // Replace with actual rendering logic
+  return {
+    title: item.title,
+    description: item.description,
+  };
+}
+
+export default async function UIDetailRoute({ params }: UIDetailPageProps) {
+  const { slug } = await params;
+  return <RegistryItemPage kind="ui" slug={slug} />;
 }

@@ -2,7 +2,7 @@ import AllBlockPage from "@/feature/docs/blocks/components/all-block-page";
 
 interface BlocksPageProps {
   searchParams: Promise<{
-    type?: string;
+    category?: string;
   }>;
 }
 

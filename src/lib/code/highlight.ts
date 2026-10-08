@@ -30,7 +30,11 @@ export async function highlightCode(
     transformerMetaHighlight(),
     transformerMetaWordHighlight(),
     ...(options.lineNumbers
-      ? [transformerRenderLineNumber({ start: options.lineNumberStart })]
+      ? [
+          transformerRenderLineNumber({
+            start: options.lineNumberStart ?? 1,
+          }),
+        ]
       : []),
   ];
 
@@ -39,7 +43,7 @@ export async function highlightCode(
     meta: options.meta ? { __raw: options.meta } : undefined,
     themes: {
       light: "min-light",
-      dark: "vitesse-dark",
+      dark: "github-dark",
     },
     defaultColor: false,
     transformers,
