@@ -1,0 +1,9 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "fixel-ui",
+  "homepage": "https://fixel-ui.com",
+  "include": [
+    "registry/ui/registry.json",
+    "registry/blocks/registry.json"
+  ]
+}

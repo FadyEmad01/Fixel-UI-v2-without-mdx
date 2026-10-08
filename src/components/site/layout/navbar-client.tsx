@@ -303,11 +303,10 @@ function PanelCard({ scrollable = false, children }: PanelCardProps) {
   return (
     <div className="min-h-0 flex-1">
       <div
-        className={`flex h-full min-h-0 flex-col rounded-lg bg-neutral-200/70 px-4 pt-10 pb-4 text-black backdrop-blur-[20px] sm:px-6 sm:pt-14 dark:bg-white/15 dark:text-white ${
-          scrollable
+        className={`flex h-full min-h-0 flex-col rounded-lg bg-neutral-200/70 px-4 pt-10 pb-4 text-black backdrop-blur-[20px] sm:px-6 sm:pt-14 dark:bg-white/15 dark:text-white ${scrollable
             ? "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             : ""
-        }`}
+          }`}
       >
         {children}
       </div>
@@ -347,7 +346,7 @@ function MenuLinks({ isOpen, onNavigate }: MenuLinksProps) {
 function SearchPlaceholder() {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <span className="text-black dark:text-white text-6xl font-archivo">coming soon</span>
+      <span className="chroma-text-animate text-6xl font-archivo chroma-text inline-block leading-[1.2]">coming soon</span>
     </div>
   );
 }
@@ -425,9 +424,8 @@ function PanelShell({ isOpen, disabled, onAnimStart, onAnimComplete, children }:
       initial="closed"
       onAnimationStart={onAnimStart}
       onAnimationComplete={onAnimComplete}
-      className={`absolute top-[48px] left-0 z-10 flex h-[calc(100svh-80px)] w-full flex-col gap-2 ${
-        isOpen && !disabled ? "" : "pointer-events-none"
-      }`}
+      className={`absolute top-[48px] left-0 z-10 flex h-[calc(100svh-80px)] w-full flex-col gap-2 ${isOpen && !disabled ? "" : "pointer-events-none"
+        }`}
       style={{ willChange: "clip-path", contain: "paint" }}
       aria-hidden={!isOpen}
     >

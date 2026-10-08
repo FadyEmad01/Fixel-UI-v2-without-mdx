@@ -2,7 +2,7 @@ import { FileCode2, FolderClosed } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { highlightCode } from "../../lib/code/highlight";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CopyButton } from "./CopyButton";
 
 interface CodeBlockProps {

@@ -2,7 +2,7 @@
 
 import { File, Menu, X } from "lucide-react";
 import { Children, type ReactNode, useState } from "react";
-import { FileTree, type FileTreeNode } from "../ui/file-tree";
+import { FileTree, type FileTreeNode } from "@/components/ui/file-tree";
 
 export interface CodeGroupTab {
   label: string;
