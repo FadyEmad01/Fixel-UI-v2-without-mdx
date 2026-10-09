@@ -16,12 +16,6 @@ export type RegistryFile = {
   type: string;
 };
 
-export type RegistryDemo = {
-  name: string;
-  path: string;
-  absolutePath: string;
-};
-
 export type RegistryItem = {
   kind: RegistryKind;
   name: string;
@@ -30,7 +24,6 @@ export type RegistryItem = {
   categories: string[];
   type: string;
   files: RegistryFile[];
-  demos: RegistryDemo[];
   dir: string;
 };
 
@@ -75,23 +68,6 @@ async function readRegistryJson(
   }
 }
 
-async function listDemos(itemDir: string): Promise<RegistryDemo[]> {
-  const demoDir = path.join(itemDir, "demo");
-  if (!(await isDirectory(demoDir))) {
-    return [];
-  }
-
-  const entries = await readdir(demoDir);
-  return entries
-    .filter((entry) => /\.(tsx|ts|jsx|js)$/.test(entry))
-    .sort()
-    .map((entry) => ({
-      name: path.parse(entry).name,
-      path: path.posix.join("demo", entry),
-      absolutePath: path.join(demoDir, entry),
-    }));
-}
-
 /**
  * Fallback shadcn item `type` when a per-item registry.json omits `type`.
  * These are authoritative shadcn registry item type values, deliberately NOT
@@ -131,7 +107,6 @@ function toRegistryItem(
     categories: jsonItem.categories ?? [],
     type: jsonItem.type ?? REGISTRY_TYPE_BY_KIND[kind],
     files,
-    demos: [],
     dir: itemDir,
   };
 }
@@ -161,7 +136,6 @@ async function loadRegistryItems(kind: RegistryKind): Promise<RegistryItem[]> {
       if (!item) {
         continue;
       }
-      item.demos = await listDemos(itemDir);
       items.push(item);
     }
   }

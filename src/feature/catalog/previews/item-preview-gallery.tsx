@@ -48,11 +48,8 @@ export function ItemPreviewGallery({
         />
       </div>
 
-      <div
-        role="tablist"
-        aria-label="Preview formats"
-        className="flex flex-wrap gap-1.5 border-t border-border/60 p-2"
-      >
+      <fieldset className="flex flex-wrap gap-1.5 border-t border-border/60 p-2">
+        <legend className="sr-only">Preview formats</legend>
         {previews.map((preview, index) => {
           const isActive = index === activeIndex;
 
@@ -60,8 +57,7 @@ export function ItemPreviewGallery({
             <button
               key={preview.id}
               type="button"
-              role="tab"
-              aria-selected={isActive}
+              aria-pressed={isActive}
               onClick={() => setActiveIndex(index)}
               className={
                 isActive
@@ -73,7 +69,7 @@ export function ItemPreviewGallery({
             </button>
           );
         })}
-      </div>
+      </fieldset>
     </div>
   );
 }

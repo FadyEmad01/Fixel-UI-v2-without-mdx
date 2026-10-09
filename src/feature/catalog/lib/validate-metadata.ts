@@ -1,11 +1,5 @@
 import type { CatalogItemStatus, PreviewRendererKind } from "../types/catalog";
-import { PREVIEW_RENDERERS } from "../types/catalog";
-
-const CATALOG_STATUSES: readonly CatalogItemStatus[] = [
-  "draft",
-  "published",
-  "deprecated",
-];
+import { CATALOG_STATUSES, PREVIEW_RENDERERS } from "../types/catalog";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -66,7 +60,6 @@ export function validateItemMetadata(slug: string, raw: unknown): string[] {
           problems.push(`${prefix}duplicate preview id "${id}"`);
           return;
         }
-        previewIds.add(id);
 
         const renderer = entry.renderer;
         if (
@@ -78,6 +71,10 @@ export function validateItemMetadata(slug: string, raw: unknown): string[] {
           );
           return;
         }
+
+        // Only register the id once the preview is otherwise well-formed, so a
+        // malformed entry can never satisfy a previewDisplay reference.
+        previewIds.add(id);
 
         if (renderer === "image") {
           if (!isNonEmptyString(entry.src)) {
@@ -145,13 +142,26 @@ export function validateItemMetadata(slug: string, raw: unknown): string[] {
   }
 
   if (raw.sources !== undefined) {
-    if (!isRecord(raw.sources)) {
+    const sources = raw.sources;
+    if (!isRecord(sources)) {
       problems.push(`${prefix}sources must be an object`);
-    } else if (
-      !Array.isArray(raw.sources.folders) ||
-      !raw.sources.folders.every(isNonEmptyString)
-    ) {
-      problems.push(`${prefix}sources.folders must be an array of strings`);
+    } else {
+      if (
+        !Array.isArray(sources.folders) ||
+        !sources.folders.every(isNonEmptyString)
+      ) {
+        problems.push(`${prefix}sources.folders must be an array of strings`);
+      }
+
+      for (const flag of [
+        "lineNumbers",
+        "showCopyButton",
+        "showHeader",
+      ] as const) {
+        if (sources[flag] !== undefined && typeof sources[flag] !== "boolean") {
+          problems.push(`${prefix}sources.${flag} must be a boolean`);
+        }
+      }
     }
   }
 

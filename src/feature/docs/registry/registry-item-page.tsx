@@ -120,7 +120,6 @@ export async function RegistryItemPage({ kind, slug }: RegistryItemPageProps) {
               label: chunk.filename,
               filename: chunk.filename,
               folder: chunk.folder,
-              path: chunk.path,
             }))}
           >
             {chunks.map((chunk) => (

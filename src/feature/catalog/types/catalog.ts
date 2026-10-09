@@ -76,6 +76,13 @@ export interface PreviewDisplayConfig {
 
 export type CatalogItemStatus = "draft" | "published" | "deprecated";
 
+/** Valid `CatalogItemStatus` values, shared by normalization and validation. */
+export const CATALOG_STATUSES: readonly CatalogItemStatus[] = [
+  "draft",
+  "published",
+  "deprecated",
+];
+
 /**
  * Per-item control of the detail page's Source region.
  *

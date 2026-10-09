@@ -158,4 +158,16 @@ describe("buildCatalogItems", () => {
 
     expect(items).toHaveLength(1);
   });
+
+  it("keeps same-name items from different categories", () => {
+    const items = buildCatalogItems([
+      { key: "/src/content/ui/toolkit/metadata.ts", metadata: { title: "T" } },
+      {
+        key: "/src/content/blocks/toolkit/metadata.ts",
+        metadata: { title: "T" },
+      },
+    ]);
+
+    expect(items.map((item) => item.category)).toEqual(["ui", "blocks"]);
+  });
 });

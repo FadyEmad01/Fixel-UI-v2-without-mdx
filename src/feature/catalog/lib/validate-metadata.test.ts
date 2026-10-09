@@ -124,6 +124,17 @@ describe("validateItemMetadata", () => {
     );
   });
 
+  it("flags non-boolean source flags", () => {
+    const problems = validateItemMetadata("x", {
+      title: "X",
+      sources: { folders: ["code"], lineNumbers: "yes" },
+    });
+
+    expect(problems).toContain(
+      'item "x": sources.lineNumbers must be a boolean',
+    );
+  });
+
   it("flags metadata that is not an object", () => {
     expect(validateItemMetadata("x", null)).toContain(
       'item "x": metadata must be an object',

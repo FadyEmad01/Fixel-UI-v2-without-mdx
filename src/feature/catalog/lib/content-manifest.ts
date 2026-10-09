@@ -7,7 +7,7 @@ import type {
   PreviewDisplayConfig,
   PreviewRendererKind,
 } from "../types/catalog";
-import { PREVIEW_RENDERERS } from "../types/catalog";
+import { CATALOG_STATUSES, PREVIEW_RENDERERS } from "../types/catalog";
 
 /**
  * One entry produced by an `import.meta.glob` metadata scan: the glob key and
@@ -22,19 +22,13 @@ export interface ContentModuleEntry {
 }
 
 /** Categories that content discovery will accept. */
-const CATALOG_CATEGORIES: readonly CatalogCategory[] = [
+export const CATALOG_CATEGORY_IDS: readonly CatalogCategory[] = [
   "components",
   "ui",
   "blocks",
   "templates",
   "guides",
   "easings",
-];
-
-const CATALOG_STATUSES: readonly CatalogItemStatus[] = [
-  "draft",
-  "published",
-  "deprecated",
 ];
 
 /** Matches a content module path and captures category, slug, and file name. */
@@ -45,7 +39,7 @@ const CONTENT_MODULE_PATH =
 export type ContentModuleFile = "metadata.ts" | "content.tsx";
 
 function isCatalogCategory(value: string): value is CatalogCategory {
-  return (CATALOG_CATEGORIES as readonly string[]).includes(value);
+  return (CATALOG_CATEGORY_IDS as readonly string[]).includes(value);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -264,8 +258,8 @@ export function normalizeItemMetadata(
 
 /**
  * Builds the full catalog from metadata scan entries: parses each key, skips
- * unknown categories and non-metadata paths, dedupes by name, and sorts by
- * title so list rendering is deterministic.
+ * unknown categories and non-metadata paths, dedupes by `category/slug`, and
+ * sorts by title so list rendering is deterministic.
  */
 export function buildCatalogItems(
   entries: readonly ContentModuleEntry[],
@@ -275,15 +269,18 @@ export function buildCatalogItems(
 
   for (const entry of entries) {
     const parsed = parseContentModulePath(entry.key);
-    if (
-      !parsed ||
-      !isCatalogCategory(parsed.category) ||
-      seen.has(parsed.slug)
-    ) {
+    if (!parsed || !isCatalogCategory(parsed.category)) {
       continue;
     }
 
-    seen.add(parsed.slug);
+    // Item identity is `category/slug` so two categories can each host an
+    // item with the same slug without one silently shadowing the other.
+    const itemKey = `${parsed.category}/${parsed.slug}`;
+    if (seen.has(itemKey)) {
+      continue;
+    }
+
+    seen.add(itemKey);
     items.push(
       normalizeItemMetadata(parsed.category, parsed.slug, entry.metadata),
     );

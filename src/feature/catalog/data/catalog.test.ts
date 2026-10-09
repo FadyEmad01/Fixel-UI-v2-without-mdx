@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { parseContentModulePath } from "../lib/content-manifest";
+import {
+  CATALOG_CATEGORY_IDS,
+  parseContentModulePath,
+} from "../lib/content-manifest";
 import { validateItemMetadata } from "../lib/validate-metadata";
+import { getCodeDemo } from "../previews/code-demo-registry";
+import { getEasingPreset } from "../previews/easing-presets";
 import { getCatalogItem, getCatalogItems } from "./catalog";
 import { rawMetadataModules } from "./discover";
 
@@ -122,5 +127,49 @@ describe("content metadata validation", () => {
     }
 
     expect(problems).toEqual([]);
+  });
+
+  it("only discovers metadata in known content categories", async () => {
+    const categories: string[] = [];
+
+    for (const key of Object.keys(rawMetadataModules)) {
+      const parsed = parseContentModulePath(key);
+      if (parsed) {
+        categories.push(parsed.category);
+      }
+    }
+
+    const known = CATALOG_CATEGORY_IDS as readonly string[];
+    expect(categories.every((category) => known.includes(category))).toBe(true);
+  });
+
+  it("resolves every codeDemo and easing source against its allowlist", async () => {
+    for (const [key, metadata] of Object.entries(rawMetadataModules)) {
+      const parsed = parseContentModulePath(key);
+      if (!parsed) {
+        continue;
+      }
+
+      const record = metadata as { previews?: unknown };
+      if (!Array.isArray(record.previews)) {
+        continue;
+      }
+
+      for (const preview of record.previews) {
+        const value = preview as { renderer?: string; source?: string };
+        if (value.renderer === "codeDemo") {
+          expect(
+            getCodeDemo(String(value.source)),
+            `codeDemo source "${value.source}" (item "${parsed.slug}") is not in code-demo-registry`,
+          ).toBeDefined();
+        }
+        if (value.renderer === "easing") {
+          expect(
+            getEasingPreset(String(value.source)),
+            `easing source "${value.source}" (item "${parsed.slug}") is not in easing-presets`,
+          ).toBeDefined();
+        }
+      }
+    }
   });
 });

@@ -22,11 +22,6 @@ function contentKey(category: string, slug: string): string {
   return `${category}/${slug}`;
 }
 
-/** Sync check that an item has free-form content (does not import it). */
-export function hasItemContent(category: string, slug: string): boolean {
-  return contentLoaders.has(contentKey(category, slug));
-}
-
 /**
  * Loads an item's optional `content.tsx` default export. Returns `null` for
  * metadata-only items. Memoized per item so repeated renders share the loaded
