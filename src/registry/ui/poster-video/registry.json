@@ -4,25 +4,12 @@
     {
       "name": "poster-video",
       "type": "registry:ui",
-      "title": "Poster Video",
-      "description": "A looping video preview that plays on hover, starting from a poster frame.",
       "files": [
         {
           "path": "code/poster-video.tsx",
           "type": "registry:ui"
         }
-      ],
-      "meta": {
-        "catalog": {
-          "category": "ui",
-          "tags": ["video", "hover"],
-          "preview": {
-            "renderer": "video",
-            "src": "/previews/poster-video.mp4",
-            "poster": "/previews/poster-video-poster.png"
-          }
-        }
-      }
+      ]
     }
   ]
 }

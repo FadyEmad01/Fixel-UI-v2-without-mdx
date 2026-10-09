@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { validateCatalogItem } from "../lib/normalize-registry-item";
+
+import { parseContentModulePath } from "../lib/content-manifest";
+import { validateItemMetadata } from "../lib/validate-metadata";
 import { getCatalogItem, getCatalogItems } from "./catalog";
+import { rawMetadataModules } from "./discover";
 
 describe("getCatalogItems", () => {
-  it("loads the ui catalog from disk with authored catalog metadata", async () => {
+  it("loads items from content metadata", async () => {
     const items = await getCatalogItems("ui");
 
     const appleFolder = items.find((item) => item.name === "apple-folder");
@@ -13,81 +16,111 @@ describe("getCatalogItems", () => {
       title: "Apple Folder",
       category: "ui",
       tags: ["folder", "animation", "motion"],
-      preview: { renderer: "video", src: "/previews/apple-folder.mp4" },
+      previews: [
+        { id: "video", renderer: "video", src: "/previews/apple-folder.mp4" },
+        { id: "demo", renderer: "codeDemo", source: "apple-folder" },
+      ],
     });
   });
 
-  it("returns an empty list for the components category, which ships empty", async () => {
+  it("attaches per-item preview display and source config from metadata", async () => {
+    const item = await getCatalogItem("ui", "apple-folder");
+
+    expect(item?.previewDisplay).toEqual({
+      cardPreviewId: "video",
+      detailPreviewIds: ["video", "demo"],
+    });
+    expect(item?.sources).toEqual({ folders: ["code", "demo"] });
+  });
+
+  it("returns an empty list for categories without content folders", async () => {
     expect(await getCatalogItems("components")).toEqual([]);
-  });
-
-  it("returns an empty list for future non-registry categories", async () => {
+    expect(await getCatalogItems("blocks")).toEqual([]);
     expect(await getCatalogItems("guides")).toEqual([]);
-  });
-
-  it("produces catalog items that pass structural validation", async () => {
-    const items = await getCatalogItems("ui");
-
-    for (const item of items) {
-      expect(validateCatalogItem(item)).toEqual([]);
-    }
   });
 });
 
 describe("getCatalogItem", () => {
-  it("looks up a single normalized item by name", async () => {
+  it("looks up a single item by name", async () => {
     const item = await getCatalogItem("ui", "apple-folder");
 
     expect(item?.name).toBe("apple-folder");
-    expect(item?.preview).toEqual({
-      renderer: "video",
-      src: "/previews/apple-folder.mp4",
-    });
+    expect(item?.previews).toEqual([
+      { id: "video", renderer: "video", src: "/previews/apple-folder.mp4" },
+      { id: "demo", renderer: "codeDemo", source: "apple-folder" },
+    ]);
   });
 
   it("returns null for an unknown item name", async () => {
     expect(await getCatalogItem("ui", "not-a-real-item")).toBeNull();
   });
-
-  it("returns null for a non-registry category", async () => {
-    expect(await getCatalogItem("easings", "ease-in-out")).toBeNull();
-  });
 });
 
 describe("preview renderer coverage", () => {
+  it("exposes a codeDemo preview item that ships with multiple renderers", async () => {
+    const demo = await getCatalogItem("ui", "counter-demo");
+    expect(demo?.category).toBe("ui");
+    expect(demo?.previews).toEqual([
+      { id: "demo", renderer: "codeDemo", source: "counter-demo" },
+    ]);
+
+    const appleFolder = await getCatalogItem("ui", "apple-folder");
+    expect(appleFolder?.previews.map((preview) => preview.renderer)).toEqual([
+      "video",
+      "codeDemo",
+    ]);
+  });
+
   it("exposes an easing preview item", async () => {
     expect(await getCatalogItem("ui", "ease-motion")).toMatchObject({
       category: "ui",
-      preview: { renderer: "easing", source: "ease-out-quart" },
-    });
-  });
-
-  it("exposes a codeDemo preview item", async () => {
-    expect(await getCatalogItem("ui", "counter-demo")).toMatchObject({
-      category: "ui",
-      preview: { renderer: "codeDemo", source: "counter-demo" },
+      previews: [
+        { id: "easing", renderer: "easing", source: "ease-out-quart" },
+      ],
     });
   });
 
   it("exposes an image preview item", async () => {
     expect(await getCatalogItem("ui", "gradient-card")).toMatchObject({
       category: "ui",
-      preview: {
-        renderer: "image",
-        src: "/previews/gradient-card.png",
-        alt: "Abstract gradient card preview",
-      },
+      previews: [
+        {
+          id: "image",
+          renderer: "image",
+          src: "/previews/gradient-card.png",
+          alt: "Abstract gradient card preview",
+        },
+      ],
     });
   });
 
   it("exposes a video preview item with a poster", async () => {
     expect(await getCatalogItem("ui", "poster-video")).toMatchObject({
       category: "ui",
-      preview: {
-        renderer: "video",
-        src: "/previews/poster-video.mp4",
-        poster: "/previews/poster-video-poster.png",
-      },
+      previews: [
+        {
+          id: "video",
+          renderer: "video",
+          src: "/previews/poster-video.mp4",
+          poster: "/previews/poster-video-poster.png",
+        },
+      ],
     });
+  });
+});
+
+describe("content metadata validation", () => {
+  it("passes validation for every discovered metadata module", async () => {
+    const problems = [];
+
+    for (const [key, metadata] of Object.entries(rawMetadataModules)) {
+      const parsed = parseContentModulePath(key);
+      if (!parsed) {
+        continue;
+      }
+      problems.push(...validateItemMetadata(parsed.slug, metadata));
+    }
+
+    expect(problems).toEqual([]);
   });
 });

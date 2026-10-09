@@ -1,37 +1,41 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { getCodeDemo } from "@/feature/catalog/previews/code-demo-registry";
 import { getEasingPreset } from "@/feature/catalog/previews/easing-presets";
-import type {
-  CatalogItem,
-  PreviewConfig,
-} from "@/feature/catalog/types/catalog";
+import type { PreviewConfig } from "@/feature/catalog/types/catalog";
 
-import { PreviewFallback } from "../previews/preview-fallback";
+import { PreviewFallback } from "./preview-fallback";
 
-interface CollectionCardPreviewProps {
-  item: CatalogItem;
+interface ItemPreviewProps {
+  /**
+   * The single preview to render. Callers resolve which preview this is via
+   * `selectCardPreview` / `selectDetailPreviews`; the renderer never decides.
+   */
+  preview: PreviewConfig;
+  /** Used for video `aria-label`s. */
+  title: string;
 }
 
 /**
- * Renders the preview frame of a collection card. `source` values are always
- * resolved against explicit allowlists (never imports derived from metadata);
- * unmapped or invalid previews fall back to a stable "coming soon" frame so a
- * broken item can never take the whole grid down.
+ * Renders a preview renderer inside whatever frame the caller supplies.
+ * `source` values are always resolved against explicit allowlists (never
+ * imports derived from metadata); unmapped or invalid previews fall back to a
+ * stable "coming soon" frame so a broken item can never take a page down.
+ * Shared by collection cards, the hero layout, and the detail gallery.
  */
-export function CollectionCardPreview({ item }: CollectionCardPreviewProps) {
-  switch (item.preview.renderer) {
+export function ItemPreview({ preview, title }: ItemPreviewProps) {
+  switch (preview.renderer) {
     case "image":
-      return <ImagePreview preview={item.preview} />;
+      return <ImagePreview preview={preview} />;
 
     case "video":
-      return <VideoPreview preview={item.preview} title={item.title} />;
+      return <VideoPreview preview={preview} title={title} />;
 
     case "codeDemo": {
-      const Demo = getCodeDemo(item.preview.source);
+      const Demo = getCodeDemo(preview.source);
 
       return Demo ? (
         <div className="flex h-full w-full items-center justify-center p-6">
@@ -43,7 +47,7 @@ export function CollectionCardPreview({ item }: CollectionCardPreviewProps) {
     }
 
     case "easing": {
-      const preset = getEasingPreset(item.preview.source);
+      const preset = getEasingPreset(preview.source);
 
       return preset ? (
         <EasingPreview preset={preset} />
@@ -57,8 +61,7 @@ export function CollectionCardPreview({ item }: CollectionCardPreviewProps) {
 
     default:
       // Unreachable for a valid PreviewConfig, but kept as a safety net for
-      // runtime data — exhaustive switch means narrowing can still land here
-      // with never-typed values.
+      // runtime data — exhaustive switch means narrowing can still land here.
       return <PreviewFallback message="Preview is unavailable" />;
   }
 }
@@ -82,6 +85,9 @@ function ImagePreview({
 /**
  * Video previews wait for the poster (or first frame) to be idle and play on
  * hover, stopping and rewinding when the pointer leaves so the poster returns.
+ * An IntersectionObserver additionally gates playback: a video that scrolls
+ * out of the viewport mid-hover is paused and reset, so off-screen videos
+ * never keep playing and never start.
  */
 function VideoPreview({
   preview,
@@ -90,11 +96,52 @@ function VideoPreview({
   preview: Extract<PreviewConfig, { renderer: "video" }>;
   title: string;
 }) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const isVisibleRef = useRef(true);
+
+  const stopAndReset = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    video.pause();
+    video.currentTime = 0;
+
+    // Reload so a poster-backed preview falls back to its poster frame rather
+    // than freezing on the last played frame. `load()` re-fetches the source,
+    // so only do it when a poster should be the idle state.
+    if (preview.poster) {
+      video.load();
+    }
+  }, [preview.poster]);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+        if (!entry.isIntersecting) {
+          stopAndReset();
+        }
+      },
+      { threshold: 0.05 },
+    );
+
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [stopAndReset]);
 
   const handleEnter = () => {
     const video = videoRef.current;
-    if (!video) {
+    // Never start playback while the frame is off-screen: the hover can arrive
+    // (or persist) during scroll even though the video cannot be seen.
+    if (!video || !isVisibleRef.current) {
       return;
     }
 
@@ -110,37 +157,22 @@ function VideoPreview({
     });
   };
 
-  const handleLeave = () => {
-    const video = videoRef.current;
-    if (!video) {
-      return;
-    }
-
-    video.pause();
-    video.currentTime = 0;
-
-    // Reload so a poster-backed preview falls back to its poster frame rather
-    // than freezing on the last played frame. `load()` re-fetches the source,
-    // so only do it when a poster should be the idle state.
-    if (preview.poster) {
-      video.load();
-    }
-  };
-
   return (
-    <video
-      ref={videoRef}
-      src={preview.src}
-      poster={preview.poster}
-      aria-label={`${title} preview`}
-      muted
-      loop
-      playsInline
-      preload={preview.poster ? "none" : "metadata"}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-      className="h-full w-full object-cover transition-transform duration-500 ease-out"
-    />
+    <div ref={frameRef} className="h-full w-full">
+      <video
+        ref={videoRef}
+        src={preview.src}
+        poster={preview.poster}
+        aria-label={`${title} preview`}
+        muted
+        loop
+        playsInline
+        preload={preview.poster ? "none" : "metadata"}
+        onMouseEnter={handleEnter}
+        onMouseLeave={stopAndReset}
+        className="h-full w-full object-cover transition-transform duration-500 ease-out"
+      />
+    </div>
   );
 }
 

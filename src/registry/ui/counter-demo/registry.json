@@ -4,24 +4,12 @@
     {
       "name": "counter-demo",
       "type": "registry:ui",
-      "title": "Counter",
-      "description": "A tiny interactive counter with increment and decrement buttons.",
       "files": [
         {
           "path": "code/counter.tsx",
           "type": "registry:ui"
         }
-      ],
-      "meta": {
-        "catalog": {
-          "category": "ui",
-          "tags": ["interaction", "state"],
-          "preview": {
-            "renderer": "codeDemo",
-            "source": "counter-demo"
-          }
-        }
-      }
+      ]
     }
   ]
 }

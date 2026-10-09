@@ -22,18 +22,6 @@ export type RegistryDemo = {
   absolutePath: string;
 };
 
-/**
- * Raw `meta.catalog` block authored inside a per-item registry.json.
- * Kept loose on purpose: registry.json is read from disk as JSON, so these
- * fields are validated/normalized at the catalog boundary, not trusted here.
- */
-export type RegistryCatalogMeta = {
-  category?: string;
-  tags?: string[];
-  preview?: unknown;
-  status?: string;
-};
-
 export type RegistryItem = {
   kind: RegistryKind;
   name: string;
@@ -44,7 +32,6 @@ export type RegistryItem = {
   files: RegistryFile[];
   demos: RegistryDemo[];
   dir: string;
-  catalog?: RegistryCatalogMeta;
 };
 
 type RegistryJsonFile = {
@@ -59,9 +46,6 @@ type RegistryJsonItem = {
   type?: string;
   categories?: string[];
   files?: RegistryJsonFile[];
-  meta?: {
-    catalog?: RegistryCatalogMeta;
-  };
 };
 
 type RegistryJson = {
@@ -149,7 +133,6 @@ function toRegistryItem(
     files,
     demos: [],
     dir: itemDir,
-    catalog: jsonItem.meta?.catalog,
   };
 }
 
@@ -195,11 +178,6 @@ export const getRegistryItem = cache(
   },
 );
 
-export async function getRegistryStaticParams(kind: RegistryKind) {
-  const items = await getRegistryItems(kind);
-  return items.map((item) => ({ slug: item.name }));
-}
-
 export function languageFromPath(filePath: string) {
   const extension = path.extname(filePath).slice(1).toLowerCase();
 
@@ -223,25 +201,34 @@ export function languageFromPath(filePath: string) {
   }
 }
 
-export async function readRegistrySources(item: RegistryItem) {
-  const sources = [
-    ...item.files.map((file) => ({
-      path: file.path,
-      absolutePath: file.absolutePath,
-    })),
-    ...item.demos.map((demo) => ({
-      path: demo.path,
-      absolutePath: demo.absolutePath,
-    })),
-  ];
+/**
+ * A source file read from one of an item's folders (e.g. `code/` or `demo/`),
+ * with a posix-style path relative to the item directory.
+ */
+export type RegistryDirSource = {
+  path: string;
+  language: string;
+  code: string;
+};
 
-  const unique = new Map(sources.map((source) => [source.path, source]));
+export async function readDirSourceFiles(
+  item: RegistryItem,
+  folder: string,
+): Promise<RegistryDirSource[]> {
+  const dirPath = path.join(item.dir, folder);
+  if (!(await isDirectory(dirPath))) {
+    return [];
+  }
+
+  const entries = (await readdir(dirPath))
+    .filter((entry) => /\.(tsx|ts|js|jsx)$/.test(entry))
+    .sort();
 
   return Promise.all(
-    [...unique.values()].map(async (source) => ({
-      path: source.path,
-      language: languageFromPath(source.path),
-      code: await readFile(source.absolutePath, "utf8"),
+    entries.map(async (entry) => ({
+      path: path.posix.join(folder, entry),
+      language: languageFromPath(entry),
+      code: await readFile(path.join(dirPath, entry), "utf8"),
     })),
   );
 }

@@ -24,7 +24,8 @@ fixel-registry-architecture-pack/
 │   ├── 04-preview-rendering.md
 │   ├── 05-shadcn-registry-workflow.md
 │   ├── 06-implementation-prompt.md
-│   └── 07-acceptance-checklist.md
+│   ├── 07-acceptance-checklist.md
+│   └── 08-content-layer-and-adding-items.md
 └── examples/
     ├── registry/ui/animated-button/registry.json
     └── src/features/catalog/
@@ -44,7 +45,8 @@ fixel-registry-architecture-pack/
 2. Give `docs/06-implementation-prompt.md` to your coding AI alongside the existing repository.
 3. Use the `examples/` files as implementation references. Adapt imports, routes, and existing components to the real repository instead of blindly replacing files.
 4. Follow `docs/05-shadcn-registry-workflow.md` when connecting your per-item registry metadata to the official shadcn registry output.
-5. Verify the result against `docs/07-acceptance-checklist.md`.
+5. After implementation, `docs/08-content-layer-and-adding-items.md` documents the content layer and the exact add-an-item procedure.
+6. Verify the result against `docs/07-acceptance-checklist.md`.
 
 ## Important distinction
 

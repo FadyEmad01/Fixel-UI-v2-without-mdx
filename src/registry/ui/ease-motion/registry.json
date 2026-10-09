@@ -4,24 +4,12 @@
     {
       "name": "ease-motion",
       "type": "registry:ui",
-      "title": "Ease Motion",
-      "description": "A simple slider that demonstrates an easing curve.",
       "files": [
         {
           "path": "code/ease-motion.tsx",
           "type": "registry:ui"
         }
-      ],
-      "meta": {
-        "catalog": {
-          "category": "ui",
-          "tags": ["motion", "easing"],
-          "preview": {
-            "renderer": "easing",
-            "source": "ease-out-quart"
-          }
-        }
-      }
+      ]
     }
   ]
 }

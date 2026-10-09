@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
+import { getCatalogItem } from "@/feature/catalog/data/catalog";
 import { RegistryItemPage } from "@/feature/docs/registry/registry-item-page";
-import { getRegistryItem } from "@/lib/registry/items";
 
 interface ComponentDetailPageProps {
   params: Promise<{
@@ -20,7 +20,7 @@ export async function generateMetadata({
   params,
 }: ComponentDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = await getRegistryItem("components", slug);
+  const item = await getCatalogItem("components", slug);
 
   if (!item) {
     return { title: "Not found" };

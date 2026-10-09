@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
+import { getCatalogItem } from "@/feature/catalog/data/catalog";
 import { RegistryItemPage } from "@/feature/docs/registry/registry-item-page";
-import { getRegistryItem } from "@/lib/registry/items";
 
 interface BlockDetailPageProps {
   params: Promise<{
@@ -20,7 +20,7 @@ export async function generateMetadata({
   params,
 }: BlockDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = await getRegistryItem("blocks", slug);
+  const item = await getCatalogItem("blocks", slug);
 
   if (!item) {
     return { title: "Not found" };

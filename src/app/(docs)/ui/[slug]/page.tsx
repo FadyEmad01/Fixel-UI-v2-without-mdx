@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 
+import {
+  getCatalogItem,
+  getCatalogItems,
+} from "@/feature/catalog/data/catalog";
 import { RegistryItemPage } from "@/feature/docs/registry/registry-item-page";
-import { getRegistryItem, getRegistryStaticParams } from "@/lib/registry/items";
 
 interface UIDetailPageProps {
   params: Promise<{
@@ -15,14 +18,15 @@ interface UIDetailPageProps {
 export const instant = false;
 
 export async function generateStaticParams() {
-  return getRegistryStaticParams("ui");
+  const items = await getCatalogItems("ui");
+  return items.map((item) => ({ slug: item.name }));
 }
 
 export async function generateMetadata({
   params,
 }: UIDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = await getRegistryItem("ui", slug);
+  const item = await getCatalogItem("ui", slug);
 
   if (!item) {
     return { title: "Not found" };

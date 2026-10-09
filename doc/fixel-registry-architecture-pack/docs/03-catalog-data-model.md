@@ -16,11 +16,16 @@ export type CatalogCategory =
   | "easings";
 
 export type PreviewConfig =
-  | { renderer: "codeDemo"; source: string }
-  | { renderer: "image"; src: string; alt: string }
-  | { renderer: "video"; src: string; poster?: string }
-  | { renderer: "easing"; source: string }
-  | { renderer: "none" };
+  | { id: string; renderer: "codeDemo"; source: string }
+  | { id: string; renderer: "image"; src: string; alt: string }
+  | { id: string; renderer: "video"; src: string; poster?: string }
+  | { id: string; renderer: "easing"; source: string }
+  | { id: string; renderer: "none" };
+
+export interface PreviewDisplayConfig {
+  cardPreviewId?: string;
+  detailPreviewIds?: string[];
+}
 
 export interface CatalogItem {
   name: string;
@@ -28,10 +33,15 @@ export interface CatalogItem {
   description?: string;
   category: CatalogCategory;
   tags: string[];
-  preview: PreviewConfig;
+  previews: PreviewConfig[];
+  previewDisplay?: PreviewDisplayConfig;
   status?: "draft" | "published" | "deprecated";
 }
 ```
+
+Every preview carries a stable unique `id` so metadata can select and order
+previews via `previewDisplay` (see `docs/08` for the authored
+`metadata.ts` shape and the selection fallback rules).
 
 The pack's TypeScript example has the same contract. If the existing repository already has `CatalogItem`, extend the existing type instead of defining a duplicate.
 
@@ -74,7 +84,12 @@ Compile-time TypeScript types do not validate JSON read from disk at runtime. If
 
 ## Detail-page content without MDX
 
-For guide-style content, use a small structured model rather than mixing long documentation strings into `CatalogItem`:
+The implemented item detail pages use free-form `content.tsx` per item
+(`src/content/<category>/<slug>/content.tsx`) — plain TSX rendered below the
+preview, no MDX compiler, no structured section model. See `docs/08`.
+
+For future guide-style content, a small structured model remains the right
+call rather than mixing long documentation strings into `CatalogItem`:
 
 ```ts
 export type GuideSection =
@@ -90,7 +105,8 @@ export interface GuideContent {
 }
 ```
 
-A React renderer switches on `section.type` and renders an approved component for each type. This keeps content editable as JSON/TypeScript and avoids an MDX compiler. Keep this as a future extension until guides actually exist.
+A React renderer switches on `section.type` and renders an approved component
+for each type. Keep this as a future extension until guides actually exist.
 
 ## Sample item
 

@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 import { getCatalogItemHref } from "@/feature/catalog/lib/routes";
+import { selectCardPreview } from "@/feature/catalog/lib/select-previews";
 import { getTagSummary } from "@/feature/catalog/lib/tags";
+import { ItemPreview } from "@/feature/catalog/previews/item-preview";
 import type { CatalogItem } from "@/feature/catalog/types/catalog";
-
-import { CollectionCardPreview } from "./collection-card-preview";
 
 interface CollectionCardProps {
   item: CatalogItem;
@@ -13,12 +13,13 @@ interface CollectionCardProps {
 export function CollectionCard({ item }: CollectionCardProps) {
   const href = getCatalogItemHref(item);
   const { firstTag, remainingCount } = getTagSummary(item.tags);
+  const preview = selectCardPreview(item);
 
   return (
     <Link href={href} className="group block min-w-0">
       <article className="relative rounded-xl transition-colors">
         <div className="relative aspect-video w-full overflow-hidden rounded-md bg-muted">
-          <CollectionCardPreview item={item} />
+          <ItemPreview preview={preview} title={item.title} />
         </div>
 
         <div className="mt-3 flex items-start justify-between gap-3">

@@ -1,38 +1,41 @@
 import { cache } from "react";
 
-import {
-  getRegistryItem as getRawRegistryItem,
-  getRegistryItems,
-} from "@/lib/registry/items";
-
-import { isRegistryCategory } from "../lib/categories";
-import { normalizeRegistryItem } from "../lib/normalize-registry-item";
+import { buildCatalogItems } from "../lib/content-manifest";
 import type { CatalogCategory, CatalogItem } from "../types/catalog";
+import { rawMetadataModules } from "./discover";
 
 /**
- * The catalog "manifest": the output of the per-item registry loader (single
- * source of truth) normalized into website-presentation form. Consumed by
- * route pages; memoized per category with React `cache`.
+ * The catalog manifest is built once at module load from the eager metadata
+ * scan: every `metadata.ts` under `src/content/`, normalized into the
+ * presentation-facing `CatalogItem` model.
+ */
+const catalogItems: CatalogItem[] = buildCatalogItems(
+  Object.entries(rawMetadataModules).map(([key, metadata]) => ({
+    key,
+    metadata,
+  })),
+);
+
+/**
+ * Lists the catalog for one category. Consumed by category pages and memoized
+ * per category with React `cache`.
  */
 export const getCatalogItems = cache(
   async (category: CatalogCategory): Promise<CatalogItem[]> => {
-    if (!isRegistryCategory(category)) {
-      return [];
-    }
-    const items = await getRegistryItems(category);
-    return items.map(normalizeRegistryItem);
+    return catalogItems.filter((item) => item.category === category);
   },
 );
 
+/** Looks up a single catalog item by category and name, or `null`. */
 export const getCatalogItem = cache(
   async (
     category: CatalogCategory,
     name: string,
   ): Promise<CatalogItem | null> => {
-    if (!isRegistryCategory(category)) {
-      return null;
-    }
-    const item = await getRawRegistryItem(category, name);
-    return item ? normalizeRegistryItem(item) : null;
+    return (
+      catalogItems.find(
+        (item) => item.category === category && item.name === name,
+      ) ?? null
+    );
   },
 );
