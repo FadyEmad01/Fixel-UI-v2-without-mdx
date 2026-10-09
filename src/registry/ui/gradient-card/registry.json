@@ -1,0 +1,28 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "items": [
+    {
+      "name": "gradient-card",
+      "type": "registry:ui",
+      "title": "Gradient Card",
+      "description": "A card with a blue-to-fuchsia gradient surface.",
+      "files": [
+        {
+          "path": "code/gradient-card.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "meta": {
+        "catalog": {
+          "category": "ui",
+          "tags": ["card", "gradient"],
+          "preview": {
+            "renderer": "image",
+            "src": "/previews/gradient-card.png",
+            "alt": "Abstract gradient card preview"
+          }
+        }
+      }
+    }
+  ]
+}

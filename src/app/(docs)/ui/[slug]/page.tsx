@@ -9,6 +9,11 @@ interface UIDetailPageProps {
   }>;
 }
 
+// Registry detail pages read the filesystem outside <Suspense> and stay
+// blocking under Cache Components; opt out of instant-navigation validation
+// (documented escape hatch, unchanged rendering model).
+export const instant = false;
+
 export async function generateStaticParams() {
   return getRegistryStaticParams("ui");
 }

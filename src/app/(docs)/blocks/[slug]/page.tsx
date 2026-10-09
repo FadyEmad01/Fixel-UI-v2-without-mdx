@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { RegistryItemPage } from "@/feature/docs/registry/registry-item-page";
-import { getRegistryItem, getRegistryStaticParams } from "@/lib/registry/items";
+import { getRegistryItem } from "@/lib/registry/items";
 
 interface BlockDetailPageProps {
   params: Promise<{
@@ -9,9 +9,12 @@ interface BlockDetailPageProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  return getRegistryStaticParams("blocks");
-}
+// The blocks registry currently ships empty, and `cacheComponents` rejects
+// empty `generateStaticParams`. Without it, unlisted paths render on demand
+// and upgrade into the ISR cache after their first visit; unknown slugs render
+// not-found() inside RegistryItemPage. The detail route stays blocking while
+// it reads the filesystem outside <Suspense>.
+export const instant = false;
 
 export async function generateMetadata({
   params,

@@ -1,4 +1,10 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "include": ["apple-folder/registry.json"]
+  "include": [
+    "apple-folder/registry.json",
+    "counter-demo/registry.json",
+    "ease-motion/registry.json",
+    "gradient-card/registry.json",
+    "poster-video/registry.json"
+  ]
 }

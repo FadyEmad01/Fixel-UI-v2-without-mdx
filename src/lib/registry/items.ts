@@ -2,7 +2,13 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { cache } from "react";
 
-export type RegistryKind = "ui" | "blocks";
+/**
+ * The on-disk registry folders that back catalog categories today.
+ * These are website category keys, NOT shadcn registry item `type` values:
+ * an item's install `type` is authored explicitly per item (see
+ * `REGISTRY_TYPE_BY_KIND` below for the fallback when an item omits it).
+ */
+export type RegistryKind = "ui" | "blocks" | "components";
 
 export type RegistryFile = {
   path: string;
@@ -16,6 +22,18 @@ export type RegistryDemo = {
   absolutePath: string;
 };
 
+/**
+ * Raw `meta.catalog` block authored inside a per-item registry.json.
+ * Kept loose on purpose: registry.json is read from disk as JSON, so these
+ * fields are validated/normalized at the catalog boundary, not trusted here.
+ */
+export type RegistryCatalogMeta = {
+  category?: string;
+  tags?: string[];
+  preview?: unknown;
+  status?: string;
+};
+
 export type RegistryItem = {
   kind: RegistryKind;
   name: string;
@@ -26,6 +44,7 @@ export type RegistryItem = {
   files: RegistryFile[];
   demos: RegistryDemo[];
   dir: string;
+  catalog?: RegistryCatalogMeta;
 };
 
 type RegistryJsonFile = {
@@ -40,6 +59,9 @@ type RegistryJsonItem = {
   type?: string;
   categories?: string[];
   files?: RegistryJsonFile[];
+  meta?: {
+    catalog?: RegistryCatalogMeta;
+  };
 };
 
 type RegistryJson = {
@@ -86,6 +108,18 @@ async function listDemos(itemDir: string): Promise<RegistryDemo[]> {
     }));
 }
 
+/**
+ * Fallback shadcn item `type` when a per-item registry.json omits `type`.
+ * These are authoritative shadcn registry item type values, deliberately NOT
+ * derived from the plural website category (e.g. `registry:components` is not
+ * a valid value).
+ */
+const REGISTRY_TYPE_BY_KIND: Record<RegistryKind, string> = {
+  components: "registry:component",
+  ui: "registry:ui",
+  blocks: "registry:block",
+};
+
 function toRegistryItem(
   kind: RegistryKind,
   itemDir: string,
@@ -102,7 +136,7 @@ function toRegistryItem(
     .map((file) => ({
       path: file.path.replaceAll("\\", "/"),
       absolutePath: path.join(itemDir, file.path),
-      type: file.type ?? jsonItem.type ?? `registry:${kind}`,
+      type: file.type ?? jsonItem.type ?? REGISTRY_TYPE_BY_KIND[kind],
     }));
 
   return {
@@ -111,10 +145,11 @@ function toRegistryItem(
     title: jsonItem.title ?? jsonItem.name,
     description: jsonItem.description,
     categories: jsonItem.categories ?? [],
-    type: jsonItem.type ?? `registry:${kind}`,
+    type: jsonItem.type ?? REGISTRY_TYPE_BY_KIND[kind],
     files,
     demos: [],
     dir: itemDir,
+    catalog: jsonItem.meta?.catalog,
   };
 }
 

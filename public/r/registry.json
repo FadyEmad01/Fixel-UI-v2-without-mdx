@@ -1,0 +1,36 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "fixel-ui",
+  "homepage": "https://fixel-ui.com",
+  "items": [
+    {
+      "name": "apple-folder",
+      "title": "Apple Folder",
+      "description": "An animated Apple-style folder component.",
+      "dependencies": [
+        "motion"
+      ],
+      "files": [
+        {
+          "path": "src/registry/ui/apple-folder/code/apple-folder.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "meta": {
+        "catalog": {
+          "category": "ui",
+          "tags": [
+            "folder",
+            "animation",
+            "motion"
+          ],
+          "preview": {
+            "renderer": "video",
+            "src": "/previews/apple-folder.mp4"
+          }
+        }
+      },
+      "type": "registry:component"
+    }
+  ]
+}

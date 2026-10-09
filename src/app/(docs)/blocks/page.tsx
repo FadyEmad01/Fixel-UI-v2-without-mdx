@@ -1,4 +1,4 @@
-import AllBlockPage from "@/feature/docs/blocks/components/all-block-page";
+import { CatalogCategoryPage } from "@/feature/catalog/components/catalog-category-page";
 
 interface BlocksPageProps {
   searchParams: Promise<{
@@ -7,5 +7,11 @@ interface BlocksPageProps {
 }
 
 export default function BlocksPage({ searchParams }: BlocksPageProps) {
-  return <AllBlockPage searchParams={searchParams} />;
+  return (
+    <CatalogCategoryPage
+      category="blocks"
+      title="Blocks"
+      searchParams={searchParams}
+    />
+  );
 }

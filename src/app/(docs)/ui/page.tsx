@@ -1,4 +1,4 @@
-import AllUIPage from "@/feature/docs/ui/components/all-ui-page";
+import { CatalogCategoryPage } from "@/feature/catalog/components/catalog-category-page";
 
 interface UIPageProps {
   searchParams: Promise<{
@@ -7,5 +7,7 @@ interface UIPageProps {
 }
 
 export default function UIPage({ searchParams }: UIPageProps) {
-  return <AllUIPage searchParams={searchParams} />;
+  return (
+    <CatalogCategoryPage category="ui" title="UI" searchParams={searchParams} />
+  );
 }

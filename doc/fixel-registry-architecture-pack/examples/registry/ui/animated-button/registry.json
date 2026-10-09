@@ -1,0 +1,27 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "animated-button",
+  "type": "registry:ui",
+  "title": "Animated Button",
+  "description": "A small button with a subtle hover interaction.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/ui/animated-button/animated-button.tsx",
+      "type": "registry:ui"
+    }
+  ],
+  "categories": ["button", "interaction"],
+  "meta": {
+    "catalog": {
+      "category": "ui",
+      "tags": ["motion", "button", "hover"],
+      "preview": {
+        "renderer": "codeDemo",
+        "source": "animated-button-demo"
+      },
+      "status": "published"
+    }
+  }
+}

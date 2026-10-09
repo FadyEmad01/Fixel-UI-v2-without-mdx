@@ -12,8 +12,12 @@ export const registryDemos: Record<
     "apple-folder": {
       default: () => import("@/registry/ui/apple-folder/demo/default"),
     },
+    "counter-demo": {
+      default: () => import("@/registry/ui/counter-demo/demo/default"),
+    },
   },
   blocks: {},
+  components: {},
 };
 
 export function getRegistryDemoLoader(
